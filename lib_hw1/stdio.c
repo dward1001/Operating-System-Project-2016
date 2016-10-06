@@ -1,4 +1,8 @@
 #include <stdio.h> 
+#include <stdbool.h>
+#include <stdint.h>
+#include <ctype.h>
+#include "round.h"
 
 /* Dumps the SIZE bytes in BUF to the console as hex bytes
    arranged 16 per line.  Numeric offsets are also included,

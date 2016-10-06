@@ -1,0 +1,5 @@
+*.output
+*.result
+*.o
+Score.txt
+.nfs*

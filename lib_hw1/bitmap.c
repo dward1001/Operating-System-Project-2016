@@ -1,3 +1,4 @@
+#include "bitmap.h"
 #include <assert.h>	// Instead of	#include <debug.h>
 #include "limits.h"	// 		#include <limits.h>
 #include "round.h"	// 		#include <round.h>

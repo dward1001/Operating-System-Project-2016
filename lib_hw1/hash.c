@@ -34,6 +34,7 @@ hash_init (struct hash *h,
   h->less = less;
   h->aux = aux;
 
+
   if (h->buckets != NULL) 
     {
       hash_clear (h, NULL);
