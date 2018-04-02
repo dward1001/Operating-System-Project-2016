@@ -67,10 +67,12 @@ void triple(struct hash_elem *e,void *aux);
 void create_hash(struct hash_sub *hash, char *name);
 int search_hash(struct hash_sub *hash, char *name);
 struct hash_node *newnode_hash(struct hash_sub *hash, int num);
+unsigned hash_int_2(int i);
 
 void create_bitmap(struct bitmap_sub *bitmap, char *name,size_t size);
 int search_bitmap(struct bitmap_sub *bitmap, char *name);
 bool strtobool(char *name);
+struct bitmap *bitmap_expand(struct bitmap *bitmap,int size);
 
 int main(void)
 {
@@ -118,11 +120,10 @@ int main(void)
 			}
 		}
 		else{
-			//scanf("%s",name); //name of structure
+			scanf("%s",name); //name of structure
 
 			if(!strcmp(command,"delete"))
 			{
-				scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				if(index > -1 && index < 10)
 				{
@@ -134,19 +135,21 @@ int main(void)
 					index = search_hash(hash,name);
 					if(index > -1 && index < 10)
 					{
-						//hash_destroy(&hash[i].element,NULL);
+						hash_clear(&hash[index].element,NULL);
+						strcpy(hash[index].name,"\0");
+						//hash_destroy(&hash[i].element,destructor);
 					}
 					else
 					{
 						index = search_bitmap(bitmap,name);
 						bitmap_destroy(bitmap[index].element);
+						strcpy(bitmap[index].name,"\0");
 					}
 				}
 
 			}	
 			else if(!strcmp(command,"dumpdata"))
 			{
-				scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				if(index > -1 && index < 10)
 				{
@@ -173,7 +176,12 @@ int main(void)
 					{
 						index = search_bitmap(bitmap,name);
 						for(i=0;i<(int)bitmap_size(bitmap[index].element);i++)
-							printf("%d",bitmap[index].element);
+						{
+							if(bitmap_test(bitmap[index].element,(size_t)i))
+								printf("1");
+							else
+								printf("0");
+						}
 						printf("\n");
 					}
 				}
@@ -183,7 +191,6 @@ int main(void)
 			//inserting the node with "num2" at (num1)th location in the list with "name"
 			else if(!strcmp(command,"list_insert"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name); //find the list with "name"
 				scanf("%d %d", &num1, &num2); //put num2 at (num1)th location
 				insert_list(&list[index],num2,num1);
@@ -195,7 +202,6 @@ int main(void)
 			//remove the (num2)th node to (num3)th node of the list with "name2" and insert them to the list with "name" at (num1)th location 
 			else if(!strcmp(command,"list_splice"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d %s %d %d",&num1,name2,&num2,&num3);
 				index = search_list(list,name2); //find the list with "name2"
 				for(temp = list_begin(&(list[index].element)),i=0; i<num2; temp = list_next(temp))
@@ -210,21 +216,18 @@ int main(void)
 			}
 			else if(!strcmp(command,"list_push_front"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d",&num1);
 				index = search_list(list,name);
 				insert_list(&list[index],num1,0);	
 			}
 			else if(!strcmp(command,"list_push_back"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d",&num1);
 				index = search_list(list,name);
 				insert_list(&list[index],num1,list_size(&(list[index].element)));	
 			}
 			else if(!strcmp(command,"list_remove"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d",&num1);
 				index = search_list(list,name);
 				for(temp = list_begin(&(list[index].element)),i=0; i<num1; temp = list_next(temp))
@@ -233,39 +236,33 @@ int main(void)
 			}
 			else if(!strcmp(command,"list_pop_front"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d",&num1);
 				index = search_list(list,name);
 				list_pop_front(&(list[index].element));
 			}
 			else if(!strcmp(command,"list_pop_back"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d",&num1);
 				index = search_list(list,name);
 				list_pop_back(&(list[index].element));
 			}
 			else if(!strcmp(command,"list_front"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				printf("%d\n",list_entry(list_front(&list[index].element),struct list_node,pointer)->numinfo);
 			}
 			else if(!strcmp(command,"list_back"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				printf("%d\n",list_entry(list_back(&list[index].element),struct list_node,pointer)->numinfo);
 			}
 			else if(!strcmp(command,"list_size"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				printf("%d\n",(int)list_size(&list[index].element));	
 			}
 			else if(!strcmp(command,"list_empty"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				if(list_empty(&list[index].element))
 					printf("true\n");
@@ -274,13 +271,11 @@ int main(void)
 			}
 			else if(!strcmp(command,"list_reverse"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				list_reverse(&(list[index].element));
 			}
 			else if(!strcmp(command,"list_swap"))
 			{
-			scanf("%s",name); //name of structure
 				scanf("%d %d",&num1,&num2);
 				index = search_list(list,name);
 				for(temp = list_begin(&(list[index].element)),i=0; i<num1; temp = list_next(temp))
@@ -291,20 +286,17 @@ int main(void)
 			}
 			else if(!strcmp(command,"list_shuffle"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				list_shuffle(&(list[index].element));	
 			}
 			
 			else if(!strcmp(command,"list_sort"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				list_sort(&(list[index].element),list_less,NULL);
 			}
 			else if(!strcmp(command,"list_insert_ordered"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				scanf("%d",&num1);
 				insert_list(&list[index],num1,0);
@@ -312,7 +304,6 @@ int main(void)
 			}
 			else if(!strcmp(command,"list_unique"))
 			{
-			scanf("%s",name); //name of structure
 				num1 = search_list(list,name);
 				scanf("%c",&tp);
 				if(tp == ' ')
@@ -345,13 +336,11 @@ int main(void)
 			}
 			else if(!strcmp(command,"list_max"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				printf("%d\n",list_entry(list_max(&(list[index].element),list_less,NULL),struct list_node,pointer)->numinfo);
 			}
 			else if(!strcmp(command,"list_min"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_list(list,name);
 				printf("%d\n",list_entry(list_min(&(list[index].element),list_less,NULL),struct list_node,pointer)->numinfo);
 			}
@@ -359,7 +348,6 @@ int main(void)
 
 			else if(!strcmp(command,"hash_insert"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				scanf("%d", &num1);
 				newnode = newnode_hash(&hash[index],num1);
@@ -367,7 +355,6 @@ int main(void)
 			}
 			else if(!strcmp(command,"hash_replace"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				scanf("%d",&num1);
 				newnode = newnode_hash(&hash[index],num1);
@@ -375,7 +362,6 @@ int main(void)
 			}
 			else if(!strcmp(command,"hash_find"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				scanf("%d",&num1);
 				newnode = newnode_hash(&hash[index],num1);
@@ -385,7 +371,6 @@ int main(void)
 			}
 			else if(!strcmp(command,"hash_delete"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				scanf("%d",&num1);
 				newnode = newnode_hash(&hash[index],num1);
@@ -393,19 +378,16 @@ int main(void)
 			}
 			else if(!strcmp(command,"hash_clear"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				hash_clear(&hash[index].element,NULL);
 			}
 			else if(!strcmp(command,"hash_size"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				printf("%d\n",(int)hash_size(&hash[index].element));
 			}
 			else if(!strcmp(command,"hash_empty"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				if(hash_empty(&hash[index].element))
 					printf("true\n");
@@ -415,7 +397,6 @@ int main(void)
 			}
 			else if(!strcmp(command,"hash_apply"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_hash(hash,name);
 				scanf("%s",name2);
 				if(!strcmp(name2,"square"))
@@ -427,68 +408,125 @@ int main(void)
 			
 			else if(!strcmp(command,"bitmap_size"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_bitmap(bitmap,name);
 				printf("%d\n",(int)bitmap_size(bitmap[index].element));
 			}	
 			else if(!strcmp(command,"bitmap_set"))
 			{
-			scanf("%s",name); //name of structure
 				index = search_bitmap(bitmap,name);
 				scanf("%d %s",&num1,name2);
 				bitmap_set(bitmap[index].element,(size_t)num1,strtobool(name2));
 			}	
 			else if(!strcmp(command,"bitmap_mark"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d",&num1);
+				bitmap_mark(bitmap[index].element,(size_t)num1);
+			}
 			else if(!strcmp(command,"bitmap_reset"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d",&num1);
+				bitmap_reset(bitmap[index].element,(size_t)num1);
+			}
 			else if(!strcmp(command,"bitmap_flip"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d",&num1);
+				bitmap_flip(bitmap[index].element,(size_t)num1);
+			}
 			else if(!strcmp(command,"bitmap_test"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d",&num1);
+				if(bitmap_test(bitmap[index].element,(size_t)num1))
+					printf("true\n");
+				else
+					printf("false\n");
+			}
 			else if(!strcmp(command,"bitmap_set_all"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%s",name2);
+				bitmap_set_all(bitmap[index].element,strtobool(name2));
+			}
 			else if(!strcmp(command,"bitmap_set_multiple"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d %s",&num1,&num2,name2);
+				bitmap_set_multiple(bitmap[index].element,(size_t)num1,(size_t)num2,strtobool(name2));
+			}
 			else if(!strcmp(command,"bitmap_count"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d %s",&num1,&num2,name2);
+				printf("%d\n",bitmap_count(bitmap[index].element,(size_t)num1,(size_t)num2,strtobool(name2)));
+			}
 			else if(!strcmp(command,"bitmap_contains"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d %s",&num1,&num2,name2);
+				if(bitmap_contains(bitmap[index].element,(size_t)num1,(size_t)num2,strtobool(name2)))
+					printf("true\n");
+				else
+					printf("false\n");
+			}
 			else if(!strcmp(command,"bitmap_any"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d",&num1,&num2);
+				if(bitmap_any(bitmap[index].element,(size_t)num1,(size_t)num2))
+					printf("true\n");
+				else
+					printf("false\n");
+			}
 			else if(!strcmp(command,"bitmap_none"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d",&num1,&num2);
+				if(bitmap_none(bitmap[index].element,(size_t)num1,(size_t)num2))
+					printf("true\n");
+				else
+					printf("false\n");
+			}
 			else if(!strcmp(command,"bitmap_all"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d",&num1,&num2);
+				if(bitmap_all(bitmap[index].element,(size_t)num1,(size_t)num2))
+					printf("true\n");
+				else
+					printf("false\n");
+			}
 			else if(!strcmp(command,"bitmap_scan"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d %s",&num1,&num2,name2);
+				printf("%zu\n",bitmap_scan(bitmap[index].element,(size_t)num1,(size_t)num2,strtobool(name2)));
+			}
 			else if(!strcmp(command,"bitmap_scan_and_flip"))
 			{
-			}	
+				index = search_bitmap(bitmap,name);
+				scanf("%d %d %s",&num1,&num2,name2);
+				printf("%zu\n",bitmap_scan_and_flip(bitmap[index].element,(size_t)num1,(size_t)num2,strtobool(name2)));
+			}
 			else if(!strcmp(command,"bitmap_dump"))
 			{
+				index = search_bitmap(bitmap,name);
+				bitmap_dump(bitmap[index].element);
 			}
 			else if(!strcmp(command,"bitmap_expand"))
 			{
+				index = search_bitmap(bitmap,name);
+				scanf("%d",&num1);
+				bitmap[index].element = bitmap_expand(bitmap[index].element,num1);
 			}
 
-			   /*else
-			   {
+			else
+			{
 			   printf("There is no such command!\n");
 			   exit(-1);
-			   }*/
+			}
 		}
 	}
 	return 0;
@@ -622,6 +660,10 @@ struct hash_node *newnode_hash(struct hash_sub *hash, int num)
 	h_node->numinfo = num;
 	return h_node;
 }
+unsigned hash_int_2(int i)
+{
+	return (i*i*i)%SIZE_MAX;
+}
 
 void create_bitmap(struct bitmap_sub *bitmap, char *name, size_t size)
 {
@@ -647,4 +689,13 @@ bool strtobool(char *name)
 		return true;
 	else
 		return false;
+}
+struct bitmap *bitmap_expand(struct bitmap *bitmap,int size)
+{
+	int i;
+	size_t len = bitmap_size(bitmap) + (size_t)size;
+	struct bitmap *temp = bitmap_create(len);
+	for(i=0;i<(int)bitmap_size(bitmap);i++)
+		bitmap_set(temp,(size_t)i,bitmap_test(bitmap,(size_t)i));
+	return temp;
 }
